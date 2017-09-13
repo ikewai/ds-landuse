@@ -8,16 +8,19 @@
  *
  * Main module of the application.
  */
-angular
+var DsLandApp = angular
   .module('dsLanduseApp', [
     'ngAnimate',
     'ngCookies',
     'ngResource',
     'ngRoute',
     'ngSanitize',
-    'ngTouch'
+    'ngTouch',
+    'ngStorage',
+    'AgavePlatformScienceAPILib'
   ])
   .config(function ($routeProvider) {
+
     $routeProvider
       .when('/', {
         templateUrl: 'views/main.html',
@@ -33,3 +36,9 @@ angular
         redirectTo: '/'
       });
   });
+  DsLandApp.config(['$localStorageProvider',
+      function ($localStorageProvider) {
+          $localStorageProvider.get('token');
+
+          $localStorageProvider.set('token', 'ClientAppToken');
+      }]);
