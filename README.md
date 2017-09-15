@@ -1,9 +1,10 @@
 # ds-landuse
-
-This project is generated with [yo angular generator](https://github.com/yeoman/generator-angular)
-version 0.12.1.
+Decision Support Tool for Land Use related to the `Ike Wai project.  Using the IKE platform APIs.
 
 ## Build & development
+npm install
+
+bower install
 
 Run `grunt` for building and `grunt serve` for preview.
 
