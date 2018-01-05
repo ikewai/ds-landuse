@@ -15,7 +15,7 @@ You will need to change the line:
 ```
 $localStorageProvider.set('token', 'mytoken');
 ```
-
+ 
 in the app/scripts/app.js and replace with your API token
 
 ## Testing
