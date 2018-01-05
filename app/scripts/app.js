@@ -17,7 +17,8 @@ var DsLandApp = angular
     'ngSanitize',
     'ngTouch',
     'ngStorage',
-    'AgavePlatformScienceAPILib'
+    'AgavePlatformScienceAPILib',
+    'ui-leaflet',
   ])
   .config(function ($routeProvider) {
 
@@ -40,5 +41,5 @@ var DsLandApp = angular
       function ($localStorageProvider) {
           $localStorageProvider.get('token');
 
-          $localStorageProvider.set('token', 'ClientAppToken');
+          $localStorageProvider.set('token', 'mytoken');
       }]);
