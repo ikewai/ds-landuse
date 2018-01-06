@@ -31,14 +31,30 @@ angular.module('dsLanduseApp')
     }
     //$scope.getLanduseData();
 
+    function getSum(total, num) {
+       return total + num;
+    }
 
     $scope.fetchCovJson = function(){
       $.getJSON( "data/base0.covjson", function( data ) {
-        alert(data.ranges.recharge.values.slice(0,3))
         $scope.recharge = data.ranges.recharge.values
+        $scope.base_sum = $scope.recharge.reduce(getSum)
+        $scope.$apply()
       });
     }
     $scope.fetchCovJson()
+
+    $scope.calculate_new_recharge = function(){
+      $scope.new_recharge  = $scope.recharge.slice(); //clone array
+      var landuse_type = 1
+      var scenario = 'recharge_scenario0'
+      angular.forEach($scope.landuse, function(val, key) {
+        var new_index = val.value.y*732 + val.value.x
+        $scope.new_recharge[new_index] = val.value[scenario][landuse_type]
+      });
+      $scope.landuse_sum = $scope.new_recharge.reduce(getSum)
+      //$scope.$apply()
+    }
     ////////LEAFLET//////////////////
     $scope.markers=[];
 
@@ -143,6 +159,7 @@ angular.module('dsLanduseApp')
         MetaController.listMetadata(query,1000,0)//"{'name':'Landuse','value.name':'testunit3'}"
           .then(function(response){
                $scope.landuse = response.result;
+               $scope.calculate_new_recharge ()
          });
     }
 
