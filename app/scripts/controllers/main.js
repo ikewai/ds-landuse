@@ -20,11 +20,23 @@ angular.module('dsLanduseApp')
     }
     //$scope.getWells();
 
+    //Landuse data search/fetch
+    $scope.getLanduseData = function(){
+      //this will use the 0 indexed feature, which hsould be a GeoJSON polygon, for the spatial search boundry
+      //query = "{$and:[{'name':'Landuse'},{'value.name':'testunit3'},{'value.loc': {$geoWithin: {'$geometry':"+angular.toJson(angular.fromJson(drawnItems.toGeoJSON()).features[0].geometry).replace(/"/g,'\'')+"}}]}";
+        MetaController.listMetadata("{'name':'Landuse','value.name':'testunit3'}",10,0)//"{'name':'Landuse','value.name':'testunit3'}"
+          .then(function(response){
+               $scope.landuse = response.result;
+         });
+    }
+    //$scope.getLanduseData();
+
 
 
     ////////LEAFLET//////////////////
     $scope.markers=[];
 
+    //Setup the map defaults
     angular.extend($scope, {
         drawControl: true,
         hawaii: {
@@ -43,11 +55,13 @@ angular.module('dsLanduseApp')
         },
     });
 
-
+    //this is object to store the drawn polygons for access them as geojson for search later
     var drawnItems = new L.FeatureGroup();
     $scope.drawnItemsCount = function() {
       return drawnItems.getLayers().length;
     }
+
+    //Setup the map drawing options
     angular.extend($scope, {
       map: {
         center: {
@@ -84,20 +98,15 @@ angular.module('dsLanduseApp')
       }
     });
 
+
     var handle = {
       created: function(e,leafletEvent, leafletObject, model, modelName) {
         drawnItems.addLayer(leafletEvent.layer);
         //hide toolbar
-        angular.element('.leaflet-draw-toolbar-top').hide();
-        //drawControl.hideDrawTools();
-        //alert(angular.toJson(angular.fromJson(drawnItems.toGeoJSON()).features[0].geometry));
+        //angular.element('.leaflet-draw-toolbar-top').hide();
       },
       edited: function(arg) {},
-      deleted: function(arg) {
-        if (angular.fromJson(drawnItems.toGeoJSON()).features[0] == null){
-          angular.element('.leaflet-draw-toolbar-top').show();
-        }
-      },
+      deleted: function(arg) {},
       drawstart: function(arg) {},
       drawstop: function(arg) {},
       editstart: function(arg) {},
@@ -107,10 +116,11 @@ angular.module('dsLanduseApp')
       },
       deletestop: function(arg) {}
     };
+
     var drawEvents = leafletDrawEvents.getAvailableEvents();
+
     drawEvents.forEach(function(eventName){
         $scope.$on('leafletDirectiveDraw.' + eventName, function(e, payload) {
-          //{leafletEvent, leafletObject, model, modelName} = payload
           var leafletEvent, leafletObject, model, modelName; //destructuring not supported by chrome yet :(
           leafletEvent = payload.leafletEvent, leafletObject = payload.leafletObject, model = payload.model,
           modelName = payload.modelName;
@@ -118,21 +128,11 @@ angular.module('dsLanduseApp')
         });
     });
 
-    //Landuse data search/fetch
-    $scope.getLanduseData = function(){
-      //this will use the 0 indexed feature, which hsould be a GeoJSON polygon, for the spatial search boundry
-      //query = "{$and:[{'name':'Landuse'},{'value.name':'testunit3'},{'value.loc': {$geoWithin: {'$geometry':"+angular.toJson(angular.fromJson(drawnItems.toGeoJSON()).features[0].geometry).replace(/"/g,'\'')+"}}]}";
-        MetaController.listMetadata("{'name':'Landuse','value.name':'testunit3'}",10,0)//"{'name':'Landuse','value.name':'testunit3'}"
-          .then(function(response){
-               $scope.landuse = response.result;
-         });
-    }
-    //$scope.getLanduseData();
-
-    //Landuse data search/fetch
+    //SPATIAL FETCH
+    //Landuse data search/fetch with geojson boundry
     $scope.spatialSearch = function(){
       Configuration.oAuthAccessToken = $localStorage.token
-      //this will use the 0 indexed feature, which hsould be a GeoJSON polygon, for the spatial search boundry
+      //this will use the 0 indexed feature from the leaflet map, which should be a GeoJSON polygon, for the spatial search boundry
       var query = "{'$and':[{'name':'Landuse'},{'value.name':'testunit3'},{'value.loc': {$geoWithin: {'$geometry':"+angular.toJson(angular.fromJson(drawnItems.toGeoJSON()).features[0].geometry).replace(/"/g,'\'')+"}}}]}";
         MetaController.listMetadata(query,1000,0)//"{'name':'Landuse','value.name':'testunit3'}"
           .then(function(response){
