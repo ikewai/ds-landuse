@@ -32,7 +32,13 @@ angular.module('dsLanduseApp')
     //$scope.getLanduseData();
 
 
-
+    $scope.fetchCovJson = function(){
+      $.getJSON( "data/base0.covjson", function( data ) {
+        alert(data.ranges.recharge.values.slice(0,3))
+        $scope.recharge = data.ranges.recharge.values
+      });
+    }
+    $scope.fetchCovJson()
     ////////LEAFLET//////////////////
     $scope.markers=[];
 
