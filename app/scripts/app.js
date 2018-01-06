@@ -17,7 +17,8 @@ var DsLandApp = angular
     'ngSanitize',
     'ngTouch',
     'ngStorage',
-    'AgavePlatformScienceAPILib'
+    'AgavePlatformScienceAPILib',
+    'ui-leaflet',
   ])
   .config(function ($routeProvider) {
 
@@ -41,17 +42,5 @@ var DsLandApp = angular
       function ($localStorageProvider) {
           $localStorageProvider.get('token');
 
-          $localStorageProvider.set('token', '34dd97b2682e4ea2d9fe11676cf6c15');
-
-          var Configuration = {
-              BASEURI: 'https://agaveauth.its.hawaii.edu',
-              oAuthAccessToken: '34dd97b2682e4ea2d9fe11676cf6c15',
-              setToken: function(token) {
-                this.oAuthAccessToken = token;
-              },
-              setBaseUri: function(baseUri) {
-                this.BASEURI = baseUri;
-              }
-          };
-          return Configuration
+          $localStorageProvider.set('token', 'mytoken');
       }]);
