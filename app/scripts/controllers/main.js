@@ -149,18 +149,77 @@ angular.module('dsLanduseApp')
           handle[eventName.replace('draw:','')](e,leafletEvent, leafletObject, model, modelName);
         });
     });
+    $scope.fetchMoreSpatialSearch = function(offset){
+      Configuration.oAuthAccessToken = $localStorage.token
+      //this will use the 0 indexed feature from the leaflet map, which should be a GeoJSON polygon, for the spatial search boundry
+      var query = "{'$and':[{'name':'Landuse'},{'value.name':'testunit3'},{'value.loc': {$geoWithin: {'$geometry':"+angular.toJson(angular.fromJson(drawnItems.toGeoJSON()).features[0].geometry).replace(/"/g,'\'')+"}}}]}";
+        MetaController.listMetadata(query,1000,offset)//"{'name':'Landuse','value.name':'testunit3'}"
+          .then(function(response){
+               $scope.landuse = $scope.landuse.concat(response.result);
+               console.log("Count:" + $scope.landuse.length.toString())
+               if(response.result.length == 1000){
+                 $scope.fetchMoreSpatialSearch(offset+1000)
+               }else{
+                 $scope.calculate_new_recharge()
+               }
+         });
+    }
 
+    function fetchMetadataFromAPI(query="",limit=100,offset=0){
+      $.ajax({
+        type: "GET",
+        url: "https://agaveauth.its.hawaii.edu:443/meta/v2/data?q="+encodeURI(query)+"&limit="+limit.toString()+"&offset="+offset.toString(),
+        dataType: 'json',
+        async: false,
+        headers: {
+          "Authorization": "Bearer " + $localStorage.token,
+          "Content-Type":"application/x-www-form-urlencoded"
+        },
+        data: {},
+        success: function (response){
+          $scope.landuse = response.result;
+          console.log("Count:" + $scope.landuse.length.toString())
+          $scope.calculate_new_recharge()
+        }
+      });
+    }
     //SPATIAL FETCH
     //Landuse data search/fetch with geojson boundry
     $scope.spatialSearch = function(){
       Configuration.oAuthAccessToken = $localStorage.token
       //this will use the 0 indexed feature from the leaflet map, which should be a GeoJSON polygon, for the spatial search boundry
       var query = "{'$and':[{'name':'Landuse'},{'value.name':'testunit3'},{'value.loc': {$geoWithin: {'$geometry':"+angular.toJson(angular.fromJson(drawnItems.toGeoJSON()).features[0].geometry).replace(/"/g,'\'')+"}}}]}";
-        MetaController.listMetadata(query,1000,0)//"{'name':'Landuse','value.name':'testunit3'}"
+      /*  MetaController.listMetadata(query,1000,0)//"{'name':'Landuse','value.name':'testunit3'}"
           .then(function(response){
                $scope.landuse = response.result;
-               $scope.calculate_new_recharge ()
+               console.log("Count:" + $scope.landuse.length.toString())
+               if(response.result.length == 1000){
+                 $scope.fetchMoreSpatialSearch(1000)
+               }else{
+                 $scope.calculate_new_recharge()
+              }
          });
+         */
+
+      //
+      $.ajax({
+        type: "GET",
+        url: "https://agaveauth.its.hawaii.edu:443/meta/v2/data?q="+encodeURI(query)+"&limit=10000&offset=0",
+        dataType: 'json',
+        async: false,
+        headers: {
+          "Authorization": "Bearer " + $localStorage.token,
+          "Content-Type":"application/x-www-form-urlencoded"
+        },
+        data: {},
+        success: function (response){
+          $scope.landuse = response.result;
+          console.log("Count:" + $scope.landuse.length.toString())
+          $scope.calculate_new_recharge()
+        }
+      });
     }
+
+
 
   });
